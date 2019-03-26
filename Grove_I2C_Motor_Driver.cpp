@@ -1,4 +1,4 @@
-/* 
+/*
  * Grove_I2C_Motor_Driver.cpp
  * A library for Grove - I2C Motor Driver v1.3
  *
@@ -34,7 +34,7 @@
 #include <Wire.h>
 
 /*********************************stepper motor type*******************************/
-// Define stepper motor type. Support 4 phase stepper motor by default. 
+// Define stepper motor type. Support 4 phase stepper motor by default.
 // If 2 phase motor is used, define TWO_PHASE_STEPPER_MOTOR in the ino file.
 // #define TWO_PHASE_STEPPER_MOTOR
 
@@ -47,6 +47,7 @@ int I2CMotorDriver::begin(unsigned char i2c_add)
 		Serial.println("Error! I2C address must be between 0x00 to 0x0F");
 		return(-1); // I2C address error
 	}
+	//I CHANGED SOMETHING
 	Wire.begin();
 	delayMicroseconds(10000);
 	this->_i2c_add = i2c_add;
@@ -57,21 +58,21 @@ int I2CMotorDriver::begin(unsigned char i2c_add)
 
 // *****************************Private Function*******************************
 // Set the direction of 2 motors
-// _direction: M1CWM2ACW(M1 ClockWise M2 AntiClockWise), M1ACWM2CW, BothClockWise, BothAntiClockWise, 
+// _direction: M1CWM2ACW(M1 ClockWise M2 AntiClockWise), M1ACWM2CW, BothClockWise, BothAntiClockWise,
 void I2CMotorDriver::direction(unsigned char _direction)
 {
 	Wire.beginTransmission(this->_i2c_add); // begin transmission
   	Wire.write(DirectionSet);               // Direction control header
   	Wire.write(_direction);                 // send direction control information
-  	Wire.write(Nothing);                    // need to send this byte as the third byte(no meaning)  
-  	Wire.endTransmission();                 // stop transmitting 
+  	Wire.write(Nothing);                    // need to send this byte as the third byte(no meaning)
+  	Wire.endTransmission();                 // stop transmitting
   	delay(4); 				                // wait
 }
 
 // *****************************DC Motor Function******************************
 // Set the speed of a motor, speed is equal to duty cycle here
 // motor_id: MOTOR1, MOTOR2
-// _speed: -100~100, when _speed>0, dc motor runs clockwise; when _speed<0, 
+// _speed: -100~100, when _speed>0, dc motor runs clockwise; when _speed<0,
 // dc motor runs anticlockwise
 void I2CMotorDriver::speed(unsigned char motor_id, int _speed)
 {
@@ -82,7 +83,7 @@ void I2CMotorDriver::speed(unsigned char motor_id, int _speed)
 
 	if(motor_id == MOTOR1) {
 		if (_speed >= 0) {
-			this->_M1_direction = 1; 
+			this->_M1_direction = 1;
 			_speed = _speed > 100 ? 100 : _speed;
 			this->_speed1 = map(_speed, 0, 100, 0, 255);
 		}
@@ -111,11 +112,11 @@ void I2CMotorDriver::speed(unsigned char motor_id, int _speed)
 	if (_M1_direction == -1 && _M2_direction == -1) direction(BothAntiClockWise);
 	// send command
 	Wire.beginTransmission(this->_i2c_add); // begin transmission
- 	Wire.write(MotorSpeedSet);              // set pwm header 
+ 	Wire.write(MotorSpeedSet);              // set pwm header
  	Wire.write(this->_speed1);              // send speed of motor1
   	Wire.write(this->_speed2);              // send speed of motor2
   	Wire.endTransmission();    		        // stop transmitting
-  	delay(4); 				                // Wait 
+  	delay(4); 				                // Wait
 }
 
 // Set the frequence of PWM(cycle length = 510, system clock = 16MHz)
@@ -129,8 +130,8 @@ void I2CMotorDriver::frequence(unsigned char _frequence)
 	}
 	Wire.beginTransmission(this->_i2c_add); // begin transmission
   	Wire.write(PWMFrequenceSet);            // set frequence header
- 	Wire.write(_frequence);                 // send frequence 
- 	Wire.write(Nothing);                    // need to send this byte as the third byte(no meaning)  
+ 	Wire.write(_frequence);                 // send frequence
+ 	Wire.write(Nothing);                    // need to send this byte as the third byte(no meaning)
  	Wire.endTransmission();                 // stop transmitting
  	delay(4); 				                // wait
 }
@@ -148,14 +149,14 @@ void I2CMotorDriver::stop(unsigned char motor_id)
 
 // ***************************Stepper Motor Function***************************
 // Drive a stepper motor
-// _step: -1024~1024, when _step>0, stepper motor runs clockwise; when _step<0, 
-// stepper motor runs anticlockwise; when _step is 512, the stepper motor will 
+// _step: -1024~1024, when _step>0, stepper motor runs clockwise; when _step<0,
+// stepper motor runs anticlockwise; when _step is 512, the stepper motor will
 // run a complete turn; if step is 1024, the stepper motor will run 2 turns.
 //  _type: 0 -> 4 phase stepper motor, default
 //         1 -> 2 phase stepper motor
 //  _mode: 0 -> compatible mode (_step=1 corresponds 4 steps)
 //         1 -> fine mode (_step1 corresponds 1 steps)
-void I2CMotorDriver::StepperRun(int _step, int _type, int _mode) 
+void I2CMotorDriver::StepperRun(int _step, int _type, int _mode)
 {
 	int _direction = 1;
 	if (_step > 0) {
@@ -169,7 +170,7 @@ void I2CMotorDriver::StepperRun(int _step, int _type, int _mode)
 	this->_speed1 = 255;
 	this->_speed2 = 255;
 	Wire.beginTransmission(this->_i2c_add); // begin transmission
- 	Wire.write(MotorSpeedSet);              // set pwm header 
+ 	Wire.write(MotorSpeedSet);              // set pwm header
  	Wire.write(this->_speed1);              // send speed of motor1
   	Wire.write(this->_speed2);              // send speed of motor2
   	Wire.endTransmission();    		        // stop transmitting
