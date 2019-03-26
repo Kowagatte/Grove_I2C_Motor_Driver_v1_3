@@ -47,7 +47,6 @@ int I2CMotorDriver::begin(unsigned char i2c_add)
 		Serial.println("Error! I2C address must be between 0x00 to 0x0F");
 		return(-1); // I2C address error
 	}
-	//I CHANGED SOMETHING
 	Wire.begin();
 	delayMicroseconds(10000);
 	this->_i2c_add = i2c_add;
