@@ -84,7 +84,6 @@ private:
     // Set the direction of both motors
     // _direction: BothClockWise, BothAntiClockWise, M1CWM2ACW, M1ACWM2CW
     void direction(unsigned char i2c_id, unsigned char _direction);
-    unsigned char _step_cnt = 0;
 
 public:
     // Initialize I2C with an I2C address you set on Grove - I2C Motor Driver v1.3
@@ -102,16 +101,6 @@ public:
     // Stop one motor
     // motor_id: MOTOR1, MOTOR2
     void stop(unsigned char i2c_id, unsigned char motor_id);
-    // Drive a stepper motor
-    // _step: -1024~1024, when _step>0, stepper motor runs clockwise; when
-    // _step<0, stepper motor runs anticlockwise; when _step is 512, the stepper
-    // motor will run a complete turn; if step is 1024, the stepper motor will
-    // run 2 turns.
-    // _type: 0 -> 4 phase stepper motor
-    //        1 -> 2 phase stepper motor
-    //  _mode: 0 -> compatible mode (_step=1 corresponds 4 steps)
-    //         1 -> fine mode (_step1 corresponds 1 steps)
-    void StepperRun(int _step, int _type = 0, int _mode = 0);
 };
 
 extern I2CMotorDriver Motor;
