@@ -46,7 +46,7 @@
 // Initialize I2C with an I2C address you set on Grove - I2C Motor Driver v1.3
 // default i2c address: 0x0f
 int I2CMotorDriver::begin(unsigned char i2c_id, unsigned char i2c_add){
-	if((i2c_id > 1) || (i2c_id < 0)){
+	if(i2c_id<0 || i2c_id>1){
 		Serial.println("Error! I2C id must be between 0 and 1 (Inclusive)");
 		return(-1);
 	}
@@ -59,12 +59,12 @@ int I2CMotorDriver::begin(unsigned char i2c_id, unsigned char i2c_add){
 	if(i2c_id == 0){
 		this->_i2c_0_add = i2c_add;
 		// Set default frequence to F_3921Hz
-		frequence(F_3921Hz);
+		frequence(i2c_id, F_3921Hz);
 		return(0); // OK
 	}else{
 		this->_i2c_1_add = i2c_add;
 		// Set default frequence to F_3921Hz
-		frequence(F_3921Hz);
+		frequence(i2c_id, F_3921Hz);
 		return(0); // OK
 	}
 }
@@ -73,7 +73,7 @@ int I2CMotorDriver::begin(unsigned char i2c_id, unsigned char i2c_add){
 // Set the direction of 2 motors
 // _direction: M1CWM2ACW(M1 ClockWise M2 AntiClockWise), M1ACWM2CW, BothClockWise, BothAntiClockWise,
 void I2CMotorDriver::direction(unsigned char i2c_id, unsigned char _direction){
-		if((i2c_id < 0) || (i2c_id > 1)){
+		if(i2c_id<0 || i2c_id>1){
 			Serial.println("Error! I2C id must be between 0 and 1 (Inclusive)");
 			return;
 		}
@@ -100,8 +100,7 @@ void I2CMotorDriver::direction(unsigned char i2c_id, unsigned char _direction){
 // _speed: -100~100, when _speed>0, dc motor runs clockwise; when _speed<0,
 // dc motor runs anticlockwise
 void I2CMotorDriver::speed(unsigned char i2c_id, unsigned char motor_id, int _speed){
-
-	if((i2c_id < 0) || (i2c_id > 1)){
+	if(i2c_id<0 || i2c_id>1){
 		Serial.println("Error! I2C id must be between 0 and 1 (Inclusive)");
 		return;
 	}
@@ -136,10 +135,10 @@ void I2CMotorDriver::speed(unsigned char i2c_id, unsigned char motor_id, int _sp
 			}
 		}
 		// Set the direction
-		if (_M1_direction == 1 && _M2_direction == 1) direction(BothClockWise);
-		if (_M1_direction == 1 && _M2_direction == -1) direction(M1CWM2ACW);
-		if (_M1_direction == -1 && _M2_direction == 1) direction(M1ACWM2CW);
-		if (_M1_direction == -1 && _M2_direction == -1) direction(BothAntiClockWise);
+		if (_M1_direction == 1 && _M2_direction == 1) direction(i2c_id, BothClockWise);
+		if (_M1_direction == 1 && _M2_direction == -1) direction(i2c_id, M1CWM2ACW);
+		if (_M1_direction == -1 && _M2_direction == 1) direction(i2c_id, M1ACWM2CW);
+		if (_M1_direction == -1 && _M2_direction == -1) direction(i2c_id, BothAntiClockWise);
 		// send command
 		Wire.beginTransmission(this->_i2c_0_add); // begin transmission
 		Wire.write(MotorSpeedSet);              // set pwm header
@@ -173,10 +172,10 @@ void I2CMotorDriver::speed(unsigned char i2c_id, unsigned char motor_id, int _sp
 			}
 		}
 		// Set the direction
-		if (_M3_direction == 1 && _M4_direction == 1) direction(BothClockWise);
-		if (_M3_direction == 1 && _M4_direction == -1) direction(M1CWM2ACW);
-		if (_M3_direction == -1 && _M4_direction == 1) direction(M1ACWM2CW);
-		if (_M3_direction == -1 && _M4_direction == -1) direction(BothAntiClockWise);
+		if (_M3_direction == 1 && _M4_direction == 1) direction(i2c_id, BothClockWise);
+		if (_M3_direction == 1 && _M4_direction == -1) direction(i2c_id, M1CWM2ACW);
+		if (_M3_direction == -1 && _M4_direction == 1) direction(i2c_id, M1ACWM2CW);
+		if (_M3_direction == -1 && _M4_direction == -1) direction(i2c_id, BothAntiClockWise);
 		// send command
 		Wire.beginTransmission(this->_i2c_1_add); // begin transmission
 		Wire.write(MotorSpeedSet);              // set pwm header
@@ -215,7 +214,7 @@ void I2CMotorDriver::frequence(unsigned char i2c_id, unsigned char _frequence){
 // Stop one motor
 // motor_id: MOTOR1, MOTOR2
 void I2CMotorDriver::stop(unsigned char i2c_id, unsigned char motor_id){
-	if(i2c_id<0 || i2c_id >1){
+	if(i2c_id<0 || i2c_id>1){
 		Serial.println("Error! I2C id must be between 0 and 1 (Inclusive)");
 		return;
 	}
