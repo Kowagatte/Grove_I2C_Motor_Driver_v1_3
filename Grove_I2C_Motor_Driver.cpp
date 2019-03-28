@@ -56,17 +56,10 @@ int I2CMotorDriver::begin(unsigned char i2c_id, unsigned char i2c_add){
 	}
 	Wire.begin();
 	delayMicroseconds(10000);
-	if(i2c_id == 0){
-		this->_i2c_0_add = i2c_add;
-		// Set default frequence to F_3921Hz
-		frequence(i2c_id, F_3921Hz);
-		return(0); // OK
-	}else{
-		this->_i2c_1_add = i2c_add;
-		// Set default frequence to F_3921Hz
-		frequence(i2c_id, F_3921Hz);
-		return(0); // OK
-	}
+	this->_i2c_add[i2c_id] = i2c_add;
+	// Set default frequence to F_3921Hz
+	frequence(i2c_id, F_3921Hz);
+	return(0); // OK
 }
 
 // *****************************Private Function*******************************
@@ -77,21 +70,12 @@ void I2CMotorDriver::direction(unsigned char i2c_id, unsigned char _direction){
 			Serial.println("Error! I2C id must be between 0 and 1 (Inclusive)");
 			return;
 		}
-		if(i2c_id == 0){
-			Wire.beginTransmission(this->_i2c_0_add); // begin transmission
-			Wire.write(DirectionSet);               // Direction control header
-			Wire.write(_direction);                 // send direction control information
-			Wire.write(Nothing);                    // need to send this byte as the third byte(no meaning)
-			Wire.endTransmission();                 // stop transmitting
-			delay(4); 				                // wait
-		}else{
-			Wire.beginTransmission(this->_i2c_1_add); // begin transmission
-			Wire.write(DirectionSet);               // Direction control header
-			Wire.write(_direction);                 // send direction control information
-			Wire.write(Nothing);                    // need to send this byte as the third byte(no meaning)
-			Wire.endTransmission();                 // stop transmitting
-			delay(4); 				                // wait
-		}
+		Wire.beginTransmission(this->_i2c_add[i2c_id]); // begin transmission
+		Wire.write(DirectionSet);               // Direction control header
+		Wire.write(_direction);                 // send direction control information
+		Wire.write(Nothing);                    // need to send this byte as the third byte(no meaning)
+		Wire.endTransmission();                 // stop transmitting
+		delay(4);
 }
 
 // *****************************DC Motor Function******************************
@@ -109,81 +93,32 @@ void I2CMotorDriver::speed(unsigned char i2c_id, unsigned char motor_id, int _sp
 		return;
 	}
 
-	if(i2c_id == 0){
-		if(motor_id == MOTOR1) {
-			if (_speed >= 0) {
-				this->_M1_direction = 1;
-				_speed = _speed > 100 ? 100 : _speed;
-				this->_speed1 = map(_speed, 0, 100, 0, 255);
-			}
-			else if (_speed < 0) {
-				this->_M1_direction = -1;
-				_speed = _speed < -100 ? 100 : -(_speed);
-				this->_speed1 = map(_speed, 0, 100, 0, 255);
-			}
-		}
-		else if(motor_id == MOTOR2) {
-			if (_speed >= 0) {
-				this->_M2_direction = 1;
-				_speed = _speed > 100 ? 100 : _speed;
-				this->_speed2 = map(_speed, 0, 100, 0, 255);
-			}
-			else if (_speed < 0) {
-				this->_M2_direction = -1;
-				_speed = _speed < -100 ? 100 : -(_speed);
-				this->_speed2 = map(_speed, 0, 100, 0, 255);
-			}
-		}
-		// Set the direction
-		if (_M1_direction == 1 && _M2_direction == 1) direction(i2c_id, BothClockWise);
-		if (_M1_direction == 1 && _M2_direction == -1) direction(i2c_id, M1CWM2ACW);
-		if (_M1_direction == -1 && _M2_direction == 1) direction(i2c_id, M1ACWM2CW);
-		if (_M1_direction == -1 && _M2_direction == -1) direction(i2c_id, BothAntiClockWise);
-		// send command
-		Wire.beginTransmission(this->_i2c_0_add); // begin transmission
-		Wire.write(MotorSpeedSet);              // set pwm header
-		Wire.write(this->_speed1);              // send speed of motor1
-		Wire.write(this->_speed2);              // send speed of motor2
-		Wire.endTransmission();    		        // stop transmitting
-		delay(4); 				                // Wait
-	}else{
-		if(motor_id == MOTOR1) {
-			if (_speed >= 0) {
-				this->_M3_direction = 1;
-				_speed = _speed > 100 ? 100 : _speed;
-				this->_speed3 = map(_speed, 0, 100, 0, 255);
-			}
-			else if (_speed < 0) {
-				this->_M3_direction = -1;
-				_speed = _speed < -100 ? 100 : -(_speed);
-				this->_speed3 = map(_speed, 0, 100, 0, 255);
-			}
-		}
-		else if(motor_id == MOTOR2) {
-			if (_speed >= 0) {
-				this->_M4_direction = 1;
-				_speed = _speed > 100 ? 100 : _speed;
-				this->_speed4 = map(_speed, 0, 100, 0, 255);
-			}
-			else if (_speed < 0) {
-				this->_M4_direction = -1;
-				_speed = _speed < -100 ? 100 : -(_speed);
-				this->_speed4 = map(_speed, 0, 100, 0, 255);
-			}
-		}
-		// Set the direction
-		if (_M3_direction == 1 && _M4_direction == 1) direction(i2c_id, BothClockWise);
-		if (_M3_direction == 1 && _M4_direction == -1) direction(i2c_id, M1CWM2ACW);
-		if (_M3_direction == -1 && _M4_direction == 1) direction(i2c_id, M1ACWM2CW);
-		if (_M3_direction == -1 && _M4_direction == -1) direction(i2c_id, BothAntiClockWise);
-		// send command
-		Wire.beginTransmission(this->_i2c_1_add); // begin transmission
-		Wire.write(MotorSpeedSet);              // set pwm header
-		Wire.write(this->_speed3);              // send speed of motor1
-		Wire.write(this->_speed4);              // send speed of motor2
-		Wire.endTransmission();    		        // stop transmitting
-		delay(4); 				                // Wait
+	int index = (i2c_id == 0) ? i2c_id + motor_id : (i2c_id + motor_id) + 1;
+	int motorid1 = (i2c_id == 0) ? 0 : 2;
+	int motorid2 = (i2c_id == 0) ? 1 : 3;
+
+	if (_speed >= 0) {
+		this->_direction[index] = 1;
+		_speed = _speed > 100 ? 100 : _speed;
+		this->_speed[index] = map(_speed, 0, 100, 0, 255);
 	}
+	else if (_speed < 0) {
+		this->_direction[index] = -1;
+		_speed = _speed < -100 ? 100 : -(_speed);
+		this->_speed[index] = map(_speed, 0, 100, 0, 255);
+	}
+	// Set the direction
+	if (_direction[motorid1] == 1 && _direction[motorid2] == 1) direction(i2c_id, BothClockWise);
+	if (_direction[motorid1] == 1 && _direction[motorid2] == -1) direction(i2c_id, M1CWM2ACW);
+	if (_direction[motorid1] == -1 && _direction[motorid2] == 1) direction(i2c_id, M1ACWM2CW);
+	if (_direction[motorid1] == -1 && _direction[motorid2] == -1) direction(i2c_id, BothAntiClockWise);
+	// send command
+	Wire.beginTransmission(this->_i2c_add[i2c_id]); // begin transmission
+	Wire.write(MotorSpeedSet);              // set pwm header
+	Wire.write(this->_speed[motorid1]);              // send speed of motor1
+	Wire.write(this->_speed[motorid2]);              // send speed of motor2
+	Wire.endTransmission();    		        // stop transmitting
+	delay(4); 				                // Wait
 }
 
 // Set the frequence of PWM(cycle length = 510, system clock = 16MHz)
@@ -194,21 +129,12 @@ void I2CMotorDriver::frequence(unsigned char i2c_id, unsigned char _frequence){
 		Serial.println("frequence error! Must be F_31372Hz, F_3921Hz, F_490Hz, F_122Hz, F_30Hz");
 		return;
 	}
-	if(i2c_id == 0){
-		Wire.beginTransmission(this->_i2c_0_add); // begin transmission
-		Wire.write(PWMFrequenceSet);            // set frequence header
-		Wire.write(_frequence);                 // send frequence
-		Wire.write(Nothing);                    // need to send this byte as the third byte(no meaning)
-		Wire.endTransmission();                 // stop transmitting
-		delay(4); 				                // wait
-	}else{
-		Wire.beginTransmission(this->_i2c_1_add); // begin transmission
-		Wire.write(PWMFrequenceSet);            // set frequence header
-		Wire.write(_frequence);                 // send frequence
-		Wire.write(Nothing);                    // need to send this byte as the third byte(no meaning)
-		Wire.endTransmission();                 // stop transmitting
-		delay(4); 				                // wait
-	}
+	Wire.beginTransmission(this->_i2c_add[i2c_id]); // begin transmission
+	Wire.write(PWMFrequenceSet);            // set frequence header
+	Wire.write(_frequence);                 // send frequence
+	Wire.write(Nothing);                    // need to send this byte as the third byte(no meaning)
+	Wire.endTransmission();                 // stop transmitting
+	delay(4); 				                // wait
 }
 
 // Stop one motor

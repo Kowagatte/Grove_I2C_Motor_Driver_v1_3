@@ -69,18 +69,11 @@ class I2CMotorDriver
 
 private:
     // _speed0: 0~100  _speed1: 0~100
-    unsigned char _speed1 = 0;
-    unsigned char _speed2 = 0;
-    unsigned char _speed3 = 0;
-    unsigned char _speed4 = 0;
+    unsigned char _speed [4] = {0, 0, 0, 0};
     // the direction of M1 and M2 DC motor 1:clockwise  -1:anticlockwise
-    int _M1_direction = 1;
-    int _M2_direction = 1;
-    int _M3_direction = 1;
-    int _M4_direction = 1;
+    int _direction [4] = {1, 1, 1, 1};
     // _i2c_add: 0x00~0x0f
-    unsigned char _i2c_0_add = 0x0f;
-    unsigned char _i2c_1_add = 0x0f;
+    unsigned char _i2c_add [2] {0x0f, 0x0f};
     // Set the direction of both motors
     // _direction: BothClockWise, BothAntiClockWise, M1CWM2ACW, M1ACWM2CW
     void direction(unsigned char i2c_id, unsigned char _direction);
